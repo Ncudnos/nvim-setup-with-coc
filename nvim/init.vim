@@ -15,9 +15,9 @@ set wrap
 set mouse=a
 set title
 set nobackup
-set nowb
 set nowrap
 set ignorecase
+set nowb
 set noswapfile
 set splitbelow
 set splitright
@@ -41,10 +41,11 @@ Plug 'nvim-telescope/telescope-file-browser.nvim'
 Plug 'numToStr/Comment.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'lifepillar/vim-solarized8'
-" coc-markdown-preview-enhanced
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+" " coc-markdown-preview-enhanced
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 Plug 'rderik/vim-markdown-toc', { 'branch': 'add-anchors-to-headings/drc2r' }
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
 nnoremap <C-s> :w<Enter>
@@ -62,8 +63,6 @@ nnoremap <C-y> :noh<Enter>
 nnoremap <silent> vim :e $MYVIMRC<TAB><cr>
 nnoremap <silent> ;; :Telescope oldfiles<cr>
 
-vnoremap <silent> J :m '>+1<cr>gv=gv
-vnoremap <silent> K :m '<-2<cr>gv=gv
 
 " Find files using Telescope command-line sugar.
 nnoremap <silent>;f <cmd>Telescope find_files<cr>
@@ -73,27 +72,27 @@ nnoremap <silent>sf <cmd>Telescope file_browser<cr>
 
 
 let g:coc_global_extensions = [
-\ 'coc-clangd',
-\ 'coc-java',
-\ 'coc-python',
-\ 'coc-html',
-\ 'coc-eslint',
-\ 'coc-css',
+            \ 'coc-clangd',
+            \ 'coc-java',
+            \ 'coc-tsserver',
+            \ 'coc-html',
+            \ 'coc-css',
+            \ 'coc-eslint',
+            \ 'coc-pyright',
+            \ 'coc-pairs',
             \ ]
 
-
-            "" Map Ctrl + Space để show list functions/biến autocomplete
+"" Map Ctrl + Space để show list functions/biến autocomplete
 inoremap <silent><expr> <c-space> coc#refresh()
 
 "" Tự động import file của biến/function khi chọn và nhấn Tab
 inoremap <expr> <TAB> pumvisible() ? "\<C-y>" : "\<C-g>u\<TAB>"
-
 "" Go to definition ở tab mới
 nmap <silent> gd :call CocAction('jumpDefinition', 'tab drop')<CR>
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
-
+nmap <silent> rn <Plug>(coc-rename)
 nnoremap <silent> K :call <SID>show_documentation()<CR>
 
 function! s:show_documentation()
@@ -105,21 +104,37 @@ function! s:show_documentation()
     execute '!' . &keywordprg . " " . expand('<cword>')
   endif
 endfunction
-
 autocmd CursorHold * silent call CocActionAsync('highlight')
 
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
 
 if exists("&termguicolors") && exists("&winblend")
     syntax enable
     set termguicolors
-    set winblend=10
+    set winblend=5
     set wildoptions=pum
-    set pumblend=15
+    set pumblend=10
     let g:solarized_termtrans=1
     set background=dark
     colorscheme solarized8
 endif
+
+nmap <silent> <C-J> <Plug>(coc-diagnostic-prev)
+" nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
 lua << EOF
 -- You don't need to set any of these options.
@@ -241,10 +256,20 @@ require'nvim-treesitter.configs'.setup {
 
   -- List of parsers to ignore installing (for "all")
   ignore_install = { "javascript" },
+
+  ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
+  -- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
+
   highlight = {
+    -- `false` will disable the whole extension
     enable = true,
 
+    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
+    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
+    -- the name of the parser)
+    -- list of language that will be disabled
     disable = { "c", "rust" },
+    -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
     disable = function(lang, buf)
         local max_filesize = 100 * 1024 -- 100 KB
         local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
@@ -253,7 +278,14 @@ require'nvim-treesitter.configs'.setup {
         end
     end,
 
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
     additional_vim_regex_highlighting = false,
   },
 }
 EOF
+
+let g:vmt_insert_anchors = 1
+let g:vmt_auto_update_on_save = 1
