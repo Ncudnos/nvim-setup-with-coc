@@ -52,7 +52,7 @@ nvm install 18
 - Download the `Github config`
 
 ```bash
-git clone https://github.com/ncudnos/nvim-setup-with-coc2.git
+git clone https://github.com/ncudnos/nvim-setup-with-coc.git
 ```
 
 - Move the `config folder` into `.config` folder
