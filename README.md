@@ -58,7 +58,7 @@ git clone https://github.com/ncudnos/nvim-setup-with-coc2.git
 - Move the `config folder` into `.config` folder
 
 ```bash
-mv nvim-setup-with-coc2/nvim ~/.config
+mv nvim-setup-with-coc/nvim ~/.config
 ```
 
 - Install vim-plug
@@ -91,3 +91,7 @@ nvim
 ```
 
 </div>
+
+### 6. If you prefer `lsp`
+
+- I have another config using `LSP` for my Neovim. You can go to the [LINK](https://github.com/ncudnos/nvim-setup-with-lsp)
