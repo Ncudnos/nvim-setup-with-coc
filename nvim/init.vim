@@ -96,6 +96,8 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 Plug 'iamcco/markdown-preview.nvim'
 Plug 'mzlogin/vim-markdown-toc'
+Plug 'norcalli/nvim-colorizer.lua'
+
 call plug#end()
 
 nnoremap <C-s> :w<Enter>
@@ -250,3 +252,7 @@ let g:airline#extensions#hunks#coc_git = 1
 
 let g:vmt_insert_anchors = 1
 let g:vmt_auto_update_on_save = 1
+
+lua << EOF
+require'colorizer'.setup()
+EOF
