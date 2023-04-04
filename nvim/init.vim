@@ -88,10 +88,11 @@ Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'nvim-telescope/telescope-file-browser.nvim'
 Plug 'numToStr/Comment.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'ryanoasis/vim-devicons'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+Plug 'nvim-lualine/lualine.nvim'
+" If you want to have icons in your statusline choose one of these
+Plug 'nvim-tree/nvim-web-devicons'
 
 Plug 'iamcco/markdown-preview.nvim'
 Plug 'mzlogin/vim-markdown-toc'
@@ -99,7 +100,7 @@ Plug 'norcalli/nvim-colorizer.lua'
 
 Plug 'tjdevries/colorbuddy.nvim'
 Plug 'svrana/neosolarized.nvim'
-
+Plug 'kdheepak/tabline.nvim'
 
 call plug#end()
 
@@ -228,32 +229,6 @@ require'nvim-treesitter.configs'.setup {
 }
 EOF
 
-let g:airline_theme='solarized'
-let g:airline_powerline_fonts=1
-
-if !exists('g:airline_symbols')
-  let g:airline_symbols = {}
-endif
-  
-"" powerline symbols
-let g:airline_left_sep = ''
-let g:airline_left_alt_sep = ''
-let g:airline_right_sep = ''
-let g:airline_right_alt_sep = ''
-let g:airline_symbols.branch = ''
-let g:airline_symbols.readonly = ''
-let g:airline_symbols.linenr = 'ln'
-let g:airline_symbols.maxlinenr = ''
-let g:airline_symbols.dirty='⚡'
-let g:airline_symbols.colnr='col'"
-
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#hunks#enabled=1
-let g:airline#extensions#hunks#coc_git = 1
-
-let g:vmt_insert_anchors = 1
-let g:vmt_auto_update_on_save = 1
-
 lua << EOF
 require'colorizer'.setup()
 EOF
@@ -298,3 +273,68 @@ Group.new("DiagnosticUnderlineHint", colors.none, colors.none, styles.undercurl,
 Group.new("HoverBorder", colors.yellow, colors.none, styles.NONE)
 
 EOF
+
+lua << EOF
+
+require('lualine').setup {
+  options = {
+    icons_enabled = true,
+    theme = 'solarized_dark',
+    component_separators = { left = '', right = ''},
+    section_separators = { left = '', right = ''},
+    disabled_filetypes = {
+      statusline = {},
+      winbar = {},
+    },
+    ignore_focus = {},
+    always_divide_middle = true,
+    globalstatus = false,
+    refresh = {
+      statusline = 1000,
+      tabline = 1000,
+      winbar = 1000,
+    }
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_c = {'filename'},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {'filename'},
+    lualine_x = {'location'},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  winbar = {},
+  inactive_winbar = {},
+  extensions = {}
+}
+
+
+require'tabline'.setup {
+      -- Defaults configuration options
+      enable = true,
+      options = {
+      -- If lualine is installed tabline will use separators configured in lualine by default.
+      -- These options can be used to override those settings.
+        section_separators = {'', ''},
+        component_separators = {'', ''},
+        max_bufferline_percent = 66, -- set to nil by default, and it uses vim.o.columns * 2/3
+        show_tabs_always = false, -- this shows tabs only when there are more than one tab or if the first tab is named
+        show_devicons = true, -- this shows devicons in buffer section
+        show_bufnr = false, -- this appends [bufnr] to buffer section,
+        show_filename_only = false, -- shows base filename only instead of relative path in filename
+        modified_icon = "+ ", -- change the default modified icon
+        modified_italic = false, -- set to true by default; this determines whether the filename turns italic if modified
+        show_tabs_only = false, -- this shows only tabs instead of tabs + buffers
+      }
+    }
+
+EOF 
