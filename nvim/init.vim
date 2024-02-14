@@ -33,7 +33,7 @@ call plug#begin()
 
 Plug 'ervandew/supertab' 
 Plug 'nvim-lua/plenary.nvim' 
-Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' } 
+Plug 'nvim-telescope/telescope.nvim' 
 Plug 'kyazdani42/nvim-web-devicons' 
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'nvim-telescope/telescope-file-browser.nvim'
